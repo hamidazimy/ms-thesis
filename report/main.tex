@@ -1,0 +1,58 @@
+\documentclass[a4paper,twoside,openright]{report}%{memoir}%
+\special{papersize=210mm,297mm}
+\usepackage[top=3.5cm, right=3.5cm, bottom=2.5cm, left=2.5cm]{geometry}
+\input{preamble}
+
+
+\titleformat{\chapter}[display]{\huge\Titr}{}{0pt}{\ \ \ \ فصل \thechapter: }[\vspace{-3.5ex}\rule{\textwidth}{0.3pt}]
+\titleformat{name=\chapter,numberless}[display]{\centering\huge\bfseries\Titr}{}{0pt}{}[]
+
+\titleformat{\bibliography}[display]{\centering\Large\bfseries\Titr}{}{0pt}{}[]
+
+\renewcommand{\thesection}{\arabic{chapter}- \arabic{section}-}
+\renewcommand{\thesubsection}{\arabic{chapter}- \arabic{section}- \arabic{subsection}}
+\renewcommand{\thesubsubsection}{\arabic{chapter}- \arabic{section}- \arabic{subsection}- \arabic{subsubsection}}
+
+\renewcommand{\theequation}{\arabic{chapter}- \arabic{equation}}
+\renewcommand{\thefigure}{\arabic{chapter}- \arabic{figure}}
+\renewcommand{\thetable}{\arabic{chapter}- \arabic{table}}
+
+% \titleformat{command}[shape]{format}{label}{sep}{before-code}[after-code]
+% \titleformat{\chapter}[display]{\normalfont\huge\bfseries}{}{0pt}{\Huge\S}
+% \titleformat{name=\chapter,numberless}[display]{\normalfont\huge\bfseries}{}{0pt}{\Huge}
+% \titlecontents{chapter}[0pt]{\addvspace{10pt}\bfseries}{}{}{\hfill\contentspage}
+% \renewcommand\thesection{\arabic{section}}
+   
+\begin{document}
+% \input{frontpage}
+% \input{besmellah}
+% \input{confirmation1}
+% \input{confirmation2}
+% \input{license}
+% \input{abstract}
+
+\doublespacing
+\tableofcontents
+\listoffigures
+\listoftables
+
+\setstretch{2.6}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{1em}
+
+\input{chapter1}
+\input{chapter2}
+\input{chapter3}
+\input{chapter4}
+\input{chapter5}
+% \input{chapter6}
+% \input{chapter7}
+
+\titlespacing*{\chapter}{0pt}{-15pt}{40pt}
+
+\input{biblio}
+\input{gloss}
+
+% \input{en-abstract}
+% \input{en-frontpage}
+\end{document}

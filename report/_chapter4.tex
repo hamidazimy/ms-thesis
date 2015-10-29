@@ -1,0 +1,623 @@
+\newpage
+\chapter{طرح پیشنهادی}
+\newpage
+\section{مقدمه}
+در این بخش ما به توضیحات مختصری در مورد بخش‌هایی از پیاده‌سازی‌های انجام گرفته حول بحث‌های مطرح‌شده در
+بخش‌های قبل می‌پردازیم. برای این پیاده‌سازی‌ها، ما محیط
+\lr{Microsoft XNA Game Development Framework}
+را انتخاب کرده‌ایم.
+\section{پیاده‌سازی}
+در این قسمت، انواع ساختارها و کلاس‌های مورد استفاده را بررسی می‌کنیم.
+\subsection{ساختارها}
+ساختارهای تعریف‌شده در این پیاده‌سازی عبارتند از:
+\begin{latin}
+\begin{itemize}
+  \item Vector2
+  \item Position
+  \item SquadMember
+  \item Squad
+  \item Formation
+  \item Treat
+  \item Message
+  \item Command
+\end{itemize}
+\end{latin}
+
+\subsubsection{ساختار \lr{Vector2}}
+این ساختار از دو مقدار \lr{float} تشکیل شده است و  معرف یک نقطه در فضای دو بعدی است که می‌تواند
+به عنوان مکان یک نیرو یا مکان مقصد و… مورد استفاده قرار گیرد.
+\subsubsection{ساختار \lr{Position}}
+این ساختار خود از یک ساختار \lr{Vector2} و یک مقدار \lr{double} به رادیان، به عنوان زاویه‌ی قرارگیری
+تشکیل شده‌است و مورد اصلی استفاده‌ی آن، برای مشخص کردن جایگاه یک نیرو است که در آن، زاویه‌ی قرارگیری نیرو
+نیز اهمیت دارد. همچنین از این ساختار می‌توان برای مشخص کردن جایگاه‌هایی که نیروها در آرایش‌های مختلف به آن‌ها
+می‌روند، استفاده کرد. در این مورد استفاده، زاویه، مقدار همان زاویه‌ای است که نیرو در آن جایگاه مشخص، باید
+رو به آن سمت بایستد.
+
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+class Position
+{
+  public Vector2 _xoy;
+  public Double _angle;
+}
+\end{lstlisting}
+}
+}
+\end{latin}
+
+\subsubsection{ساختار \lr{SquadMember}}
+این ساختار به عنوان یک نیرو یا به عبارتی عضو گروه، شناخته می‌شود. در مقابل \lr{SoloAI} که در حالت هوش مصنوعی
+انفرادی استفاده می‌شود، تعدادی از این ساختار در گروه‌هایی تحت عنوان \lr{Squad} قرار می‌گیرند و به عنوان
+گروه‌هایی از تعدادی نیرو که قرار است با هم تعامل داشته باشند، عمل می‌کنند.
+
+این ساختار تشکیل شده از
+یک مقدار \lr{Position} که با توجه به توضیحات داده شده، جایگاه و سمت قرارگیری نیرو را مشخص می‌کند،
+یک مقدار \lr{Double} به عنوان سرعت خطی حرکت نیرو، و یک مقدار \lr{Double} دیگر به عنوان سرعت زاویه‌ای چرخش نیرو.
+یک مقدار \lr{Double} دیگر، مقدار تاثیر یا \lr{influence} نیرو را برای استفاده در محاسبه‌ی نقشه‌ی تاثیر،‌مشخص می‌کند.
+همچنین دو لیست از ساختارهای \lr{Message} و \lr{Command} که پیام‌ها و دستورهایی است که از طرف دیگر اعضای گروه
+یا فرمانده‌ی گروه دریافت می‌کنند.
+
+یک ویژگی دیگر این ساختار نیز، متغیری از نوع \lr{Squad} که مشخص می‌کند این نیرو، به کدام گروه تعلق دارد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+class SquadMember
+{
+  public Position _position;
+  public Double _speed;
+  public Double _omega;
+  public Double _influence;
+  public Boolean _at_position;
+  
+  public Squad _squad;
+  
+  public List<Message> _inbox;
+  public List<Command> _roger;
+}
+\end{lstlisting}
+}
+}
+\end{latin}
+
+\subsubsection{ساختار \lr{Squad}}
+این ساختار به عنوان یک تیم از تعدادی نیرو شناخته می‌شود که با هم در تعامل هستند و در کنار هم رفتار تیمی
+هوشمند را شکل می‌دهند. این ساختار تشکیل شده از لیستی از \lr{SquadMember}ها که همان اعضای تیم هستند و
+لیستی از \lr{Position}ها به عنوان آرایش نظامی‌ای که این گروه در آن قرار دارد، یا قرار است که در آن قرار بگیرد.
+یک متغیر \rl{Boolean} هم این موضوع را مشخص می‌کند که آیا گروه مورد بحث در آرایش تعیین شده قرار دارد یا خیر.
+
+به عنوان یک ویژگی دیگر، این ساختار لیستی از نوع \lr{Traet} را به عنوان لیست دشمنان شناخته شده، نگه می‌دارد
+که این ساختار در ادامه توضیح داده خواهد شد.
+
+ویژگی مهم دیگری که در این ساختار وجود دارد، یک آرایه‌ی دوبعدی است که نقشه‌ی تأثیر که در فصل‌های گذشته
+به تفصیل توضیح داده شد را پیاده‌سازی می‌کند. هر نیرو یک مقدار تأثیری دارد که ازای هر مربعی که از او دور می‌شویم، نصف می‌شود. برای هر نیروی دشمن نیز یک مقدار تأثیر منفی در نظر گرفته می‌شود برآیند تاثیر نیروهای
+خودی و نیروهای دشمن در هر خانه، مقدار جدول تأثیر در آن خانه را مشخص می‌کند. از این جدول برای تشخیص
+قسمت‌های مختلف گروه دشمن و تعیین نقاط آسیب‌پذیر برای حمله استفاده می‌شود.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+class Squad
+{
+  public List<SquadMember> _members;
+  public List<Position> _formation;
+  public Boolean _at_formation;
+
+  public List<Treat> _enemies;
+
+  public int[, ] _influence_map;
+}
+\end{lstlisting}
+}
+}
+\end{latin}
+
+\subsubsection{ساختار \lr{Formation}}
+این ساختار دربرگیرنده‌ی آرایش‌های نظامی است و تشکیل شده از لیستی از \lr{Position}ها که نیروهای مختلف یک گروه
+می‌توانند در آن جایگاه‌ها قرار بگیرند.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+class Formation
+{
+  List<Position> _positions;
+}
+\end{lstlisting}
+}
+}
+\end{latin}
+
+\subsubsection{ساختار \lr{Treat}}
+این ساختار در واقع خصوصیات تهدیدها و دشمنان را مشخص می‌کند. هر گروه با یک ساختار \lr{Squad}، لیستی از
+ساختار \lr{Treat} را به عنوان دشمن‌های شناخته شده با خصوصیاتی که برای آن‌ها تخمین‌زده شده است، نگه می‌دارد.
+یکی از استفاده‌های این ساختار در محاسبه‌ی جدول تأثیر است.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+class Treat
+{
+  public Position _position;
+  public Double _speed;
+  public Double _omega;
+  public Double _influence;
+}
+\end{lstlisting}
+}
+}
+\end{latin}
+
+\subsubsection{ساختار \lr{Message}}
+در حالات و موقعیت‌های مختلف، ممکن است لازم باشد که اعضای یک گروه با هم پیام‌های رد و بدل کنند. این پیام‌ها
+در غالب ساختار \lr{Message} رد و بدل می‌شوند. این ساختار دارای یک متغیر \lr{Int} به عنوان نوع پیام است.
+یک ویژگی دیگر این ساختار، یک مقدار \lr{Int} دیگر به عنوان حالت پیام است. و یک مقدار \lr{String} محتوای پیام
+را مشخص می‌کند.
+
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+class Message
+{
+  public int _message_type;
+  public int _message_stat;
+  public string _message_desc;
+}
+\end{lstlisting}
+}
+}
+\end{latin}
+
+\subsubsection{ساختار \lr{Command}}
+این ساختار نیز مثل ساختار \lr{Message}، دارای یک متغیر \lr{Int} به عنوان نوع پیام و یک مقدار \lr{String}
+به عنوان محتوای پیام است. یک مقدار \lr{Int} دیگر نیز اولویت پیام را مشخص می‌کند. تفاوت \lr{Command} با \lr{Messsage}
+این است که \lr{Message} بین اعضا رد و بدل می‌شود، اما \lr{Command} از طرف گروه برای اعضا ارسال می‌شود.
+
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+class Command
+{
+  public int _command_type;
+  public int _command_prio;
+  public string _command_desc;
+}
+\end{lstlisting}
+}
+}
+\end{latin}
+
+\newpage
+\subsection{کلاس‌ها}
+در واقع ساختارهایی که در بالا گفته شد، به علت ماهیت زبان \lr{C\#} همگی در قالب کلاس‌هایی قرار گرفته‌اند که
+علاوه بر ویژگی‌هایی که توضیح داده شد، دارای توابعی نیز هستند که اعمال مختلفی انجام می‌دهند که در زیر
+به شرح آن‌ها خواهیم پرداخت.
+
+لیست کلاس‌های استفاده شده به این شرح است:
+\begin{latin}
+\begin{itemize}
+  \item SquadMember
+  \item Squad
+  \item Utility
+\end{itemize}
+\end{latin}
+
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[scale=0.5]{kolli.PNG}
+    \caption{دیاگرام ارتباط کلاس‌ها
+    \label{fig4-0}}
+  \end{center}
+\end{figure}
+
+\subsubsection{کلاس \lr{SquadMember}}
+این کلاس، همانطور که در بالا توضیح داده شد، دارای ویژگی‌های نظیر \lr{position} و \lr{speed} و \lr{omega} است که
+خصوصیات یک نیرو رو می‌رسانند. توابع این کلاس عبارتند از:
+\begin{description}
+  \item[\lr{Constructor}] 
+  تابع سازنده‌ی این کلاس که شیئی از نوع \lr{SquadMember} می‌سازد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public SquadMember(Position position, Double speed,
+    Double omega, Double influence)
+\end{lstlisting}
+}
+}
+\end{latin}
+
+  \item[\lr{Move}]
+  این تابع، یک مقدار از نوع \lr{Position} را به عنوان ورودی دریافت می‌کند و نیرو را به سمت آن نقطه روانه می‌کند.
+  با توجه به ساختار \lr{XNA}، این تابع در هر \lr{timestamp}، نیرو را یک قدم به سمت مقصد نزدیک می‌کند.
+  این تابع، در ابتدا روی نیرو را با یک سرعت زاویه‌ای مشخص به سمت مقصد برمی‌گرداند، سپس با یک سرعت خطی مشخص
+  نیرو را به سمت هدف نزدیک می‌کند. در آخر روی نیرو را به سمتی که باید به آن نگاه کند، برمی‌گرداند.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void Move(Position destination)
+\end{lstlisting}
+}
+}
+\end{latin}
+
+  \item[\lr{AddToSqaud}]
+  نیروی مورد نظر را به یک گروه اضافه می‌کند.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void AddToSquad(Squad squad)
+\end{lstlisting}
+}
+}
+\end{latin}
+
+  \item[\lr{SendMessageToMember}]
+  یک پیام به یکی از اعضای دیگر گروه می‌فرستد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void SendMessageToMember(Message message,
+  SquadMember member)
+\end{lstlisting}
+}
+}
+\end{latin}
+
+  \item[\lr{SendMessageToAllMembers}]
+  یک پیام به همه‌ی اعضای گروه می‌فرستد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void SendMessageToAllMembers(Message message)
+\end{lstlisting}
+}
+}
+\end{latin}
+    
+\end{description}
+\newpage
+\begin{figure}
+  \begin{center}
+    \includegraphics[scale=0.55]{squadmember.PNG}
+    \caption{دیاگرام کلاس \lr{SquadMember}
+    \label{fig4-1}}
+  \end{center}
+\end{figure}
+
+\subsubsection{کلاس \lr{Squad}}
+این کلاس نیز با توجه به تعریفات بالا، لیستی از \lr{SquadMember}ها به عنوان اعضای گروه، لیستی از \lr{Treat}ها
+به عنوان دشمنان شناخته‌شده، یک آرایه‌ی دو بعدی به عنوان نقشه‌ی تأثیر، و مواردی از این دست را در خود دارد،
+و با استفاده از توابع زیر، عملیاتی روی آن‌ها انجام می‌دهد. این توابع عبارتند از:
+\begin{description}
+  \item[\lr{Constructor}]
+  تابع سازنده‌ی این کلاس که شیئی از نوع \lr{Squad} می‌سازد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public Squad()
+\end{lstlisting}
+}
+}
+\end{latin}
+
+  \item[\lr{Update}]
+  با توجه به وضعیت‌های مختلف گروه، آن را به روز می‌کند. برای مثال نقشه‌ی تأثیر را به روز می‌کند یا اگر
+  گروه در آرایش خود قرار نداشته باشد، تابع \lr{Move} را صدا می‌زند که باعث می‌شود تک‌تک نیروها
+  به سمت جایگاه‌های خود حرکت کنند.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void Update()
+\end{lstlisting}
+}
+}
+\end{latin}
+  
+
+  \item[\lr{UpdateInfluenceMap}]
+  این تابع، با استفاده از مکان نیروها، نقشه‌ی تأثیر را به روز می‌کند. همان طور که در قسمت‌های پیش
+  توضیح داده‌شد، هر نیرو یک مقدار \lr{Double} به عنوان مقدار تأثیر یا \lr{influence} خود دارد، که این مقدار
+  با دور شدن از آن نیرو، کاهش می‌یابد، به این صورت که به ازای هر یک خانه‌ای که از نیرو دور می‌شویم،
+  این مقدار نصف می‌شود. برآیند تأثیرات مثبت نیروهای خودی و تأثیرات منفی نیروهای دشمن در هر خانه،
+  مقدار آن را در جدول تأثیر به دست می‌دهد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void UpdateInfluenceMap()
+\end{lstlisting}
+}
+}
+\end{latin}
+  
+  \item[\lr{Move}] 
+  تک‌تک نیروها را با توجه به آرایش نطامی گروه و جایگاهی که به هر نیرو اختصاص داده‌شده،
+  به سمت جایگاه‌های خود حرکت می‌دهد، به این صورت که برای هر نیرو، تابع \lr{Move} مربوط به آن را فرامی‌خواند،
+  و باعث می‌شود که نیرو، یک قدم به مقصد نزدیک‌تر شود. پس از فراخوانی‌های مکرر این تابع در حلقه‌ی اصلی برنامه،
+  همه‌ی نیروها به جایگاه‌های خود خواهند رفت.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+\end{lstlisting}
+}
+}
+\end{latin}
+  
+  \item[\lr{AssignToFormationByMinimumAngle}]
+  نیروها را با توجه به یکی از متدهایی که در فصل آرایش نظامی مطرح شد، یعنی بر اساس حداقل اختلاف زاویه
+  با بردار حرکت، مرتب می‌کند، و کار تخصیص نیرو به جایگاه را به تابع \lr{AssignToFormation} می‌سپارد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void AssignToFormationByMinimumAngle()
+\end{lstlisting}
+}
+}
+\end{latin}
+   
+  \item[\lr{AssignToFormation‌ByMinimumDistance}] 
+  نیروها را با توجه به یکی دیگر از متدها، یعنی حداقل فاصله تا نقطه‌ی مقصد مرتب می‌کند و مانند تابع بالا،
+  و کار تخصیص نیرو به جایگاه را به تابع \lr{AssignToFormation} می‌سپارد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void AssignToFormationByMinimumDistance()
+\end{lstlisting}
+}
+}
+\end{latin}
+  
+  \item[\lr{AssignToFormation‌}] 
+  ويژگی لیست \lr{formation} را با استفاده از مقدار ترجیحی که از توابع دیگر گرفته، به نیروها تخصیص می‌دهد.
+  این تابع، همان طور که در فصل آرایش نظامی توضیح داده شد، بهترین تخصیص ممکن را پیدا نمی‌کند، به این دلیل
+  که پیچیدگی محاسباتی بهترین تخصیص ممکن، از مرتبه‌ی $O(n!)$ است. در عوض از یک روش حریصانه استفاده می‌کند،
+  به این صورت که به عنوان ورودی، هزینه‌ی هر تخصیص نیرو به جایگاه را در یک لیست مرتب‌شده،
+  از توابع قبلی می‌گیرد، و روی این لیست، بهترین تخصیص را انتخاب می‌کند و آن نیرو را به آن جایگاه اختصاص
+  می‌دهد، سپس بهترین تخصیص برای نیرو و جایگاه انتخاب نشده را انتخاب می‌کند و همین طور تا آخر.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void AssignToFormation(List<KeyValuePair<Double,
+  KeyValuePair<int, int>>> distinction)
+\end{lstlisting}
+}
+}
+\end{latin}
+
+  \item[\lr{FormCircleAt}]
+  یک نقطه به عنوان ورودی دریافت می‌کند و با توجه به تعداد نیروها، برای آن‌ها در آن مرکز،
+  جایگاه‌هایی مشخص می‌کند که در آرایش دایره‌ای قرار بگیرند.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void FormCircleAt(Vector2 center)
+\end{lstlisting}
+}
+}
+\end{latin}
+
+  \item[\lr{FormLineAt}]
+  یک نقطه به عنوان ورودی دریافت می‌کند و با توجه به جهت حرکت و تعداد نیروها، برای آن‌ها روی آن مرکز و
+  در راستا عمود بر جهت حرکت، جایگاه‌هایی مشخص می‌کند که در آرایش خطی قرار بگیرند.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void FormLineAt(Vector2 center)
+\end{lstlisting}
+}
+}
+\end{latin}
+%---
+  \item[\lr{SendCommandToMember}]
+  یک فرمان (\lr{Command}) به یک عضو مشخص گروه می‌فرستد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void SendCommandToMember(Command command,
+  SquadMember member)
+\end{lstlisting}
+}
+}
+\end{latin}
+
+  \item[\lr{SendCommandToAll}]
+  یک فرمان به تمام اعضای گروه می‌فرستد.
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public void SendCommandToAll(Command command)
+\end{lstlisting}
+}
+}
+\end{latin}
+
+\end{description}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[scale=0.6]{squad.PNG}
+    \caption{دیاگرام کلاس \lr{Squad}
+    \label{fig4-2}}
+ \end{center}
+\end{figure}
+
+\newpage
+\subsubsection{کلاس \lr{Utility}}
+این کلاس تعدادی توابع کمکی برای انجام بعضی کارها در اختیار قرار می‌دهد. تعدادی از توابع این کلاس عبارتند از:
+\begin{description}
+  \item[\lr{NormalizeAngle}]
+  نرمال کردن زاویه (بین $\pi$ و $-\pi$)
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public static Double NormalizeAngle(Double angle)
+\end{lstlisting}
+}
+}
+\end{latin}
+  \item[\lr{EuclideanDistance}]
+  محاسبه‌ی فاصله‌ی اقلیدسی
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public static Double EuclideanDistance(Vector2 a, Vector2 b)
+\end{lstlisting}
+}
+}
+\end{latin}
+  \item[\lr{VectorAngle}]
+  محاسبه‌ی زاویه‌ی یک بردار
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public static Double VectorAngle(Vector2 vector)
+
+public static Double VectorAngle(Vector2 source,
+  Vector2 destination)
+\end{lstlisting}
+}
+}
+\end{latin}
+  \item[\lr{RotatePoint}]
+  چرخاندن یک نقطه حول یک مرکز مشخص با زاویه‌ی مشخص
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public static Vector2 RotatePoint(Vector2 point,
+Vector2 center, Double angle)
+\end{lstlisting}
+}
+}
+\end{latin}
+  \item[\lr{FindSquareVertices}]
+  پیدا کردن دو راس رو‌به‌روی یک مربع با داشتن دو راس رو‌به‌روی دیگر
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public static List<Vector2> FindSquareVertices(Vector2 a,
+  Vector2 c)
+\end{lstlisting}
+}
+}
+\end{latin}
+  \item[\lr{PolarToCartesian}]
+  تبدیل مختصات قطبی به مختصات دکارتی
+\begin{latin}
+{\linespread{1.2}
+{\inconsolata
+\lstset{language=Java}
+\begin{lstlisting}
+public static Vector2 PolarToCartesian(Double r,
+  Double theta)
+\end{lstlisting}
+}
+}
+\end{latin}
+\end{description}
+
+\newpage
+
+\subsection{اجرا}
+نماهایی از اجرای برنامه را در شکل‌های زیر مشاهده می‌کنید.
+
+در این شکل‌ها، یک گروه نیروی خودی و یه گروه نیروی دشمن وجود دارد و اعداد روی صفحه، مقدار نقشه‌ی تأثیر
+در هر خانه را نشان می‌دهد.
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[scale=0.55]{9-1.jpg}
+    \caption{تقابل ۹ نیروی خودی با ۵ نیروی دشمن
+    \label{fig9-1}}
+  \end{center}
+\end{figure}
+
+در شکل‌های زیر، آرایش‌های دایره‌ای و خطی با تعداد نیروهای مختلف را مشاهده می‌کنید.
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[scale=0.55]{4-3.jpg}
+    \caption{آرایش دایره‌ای با ۴ نیرو
+    \label{fig4-3}}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[scale=0.55]{7-3.jpg}
+    \caption{آرایش دایره‌ای با ۷ نیرو
+    \label{fig7-3}}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[scale=0.55]{9-2.jpg}
+    \caption{آرایش خطی با ۹ نیرو
+    \label{fig9-2}}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[scale=0.55]{7-4.jpg}
+    \caption{آرایش خطی با ۷ نیرو
+    \label{fig7-4}}
+  \end{center}
+\end{figure}
+
+
+
+
+
+
+
