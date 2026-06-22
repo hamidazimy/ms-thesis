@@ -1,2 +1,5 @@
-# My MS Thesis
-Documentations and implementations of my Master of Science thesis.
+My MS Thesis
+============
+
+> [!Note]
+> It's writtern in Persian/Farsi.
